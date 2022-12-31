@@ -1,35 +1,23 @@
-// 회고
-// - '상태값'의 중요성
-// - 상태 값을 이용해서 사용자 관점에서 어떻게 렌더링되는가?
-// - JSON.stringfy와 JSON.parse
-
-//TODO localstorage Read & Write
-// - [x] localStorage에 데이터를 저장
-//  - [x] 메뉴를 추가할 때
-//  - [x] 메뉴를 수정될 때
-//  - [x] 메뉴를 삭제할 때
-// - [x] localStorage에 있는 데이터를 읽어온다.
-
-//TODO 카테고리별 메뉴판 관리
-// - [x] 에스프레소 메뉴판 정리
-// - [x] 프라푸치노 메뉴판 정리
-// - [x] 블렌디드 메뉴판 정리
-// - [ ] 에스프레소 메뉴판 정리
-
-//TODO 페이지 접근시 최초 데이터 Read & Rendering
-// - [x] 페이지에 최초로 접근 시 localStorage에서 에스프레노 데이터를 가져온다.
-// - [x] 에스프레노 메뉴를 페이지에 그려준다
-
-//TODO 품절 상태 관리
-// - [x] 품절 상태인 경우를 보여줄 수 있게, 품절 버튼을 추가하고 `sold-out` class를 추가하여 상태를 변경한다.
-// - [x] 품절 버튼 추가한다.
-// - [x] 품절 버튼 클릭하면 localStorage에 상태값이 변경된다.
-// - [x] 품절 버튼 클릭하면 localStorage에 상태값이 저장된다.
-// - [x] 클릭이벤트에서 가장 가까운 li태그의 class속성 값에 sold-out를 추가한다.
-
 import { $ } from "./utils/dom.js";
 import store from "./store/index.js";
   
+//TODO 서버 요청 부분
+// - [x] 웹 서버를 띄우기
+// - [ ] 서버에 새로운 메뉴명을 추가될 수 있도록 요청한다.
+// - [ ] 카테고리별 메뉴리스트를 불러온다.
+// - [ ] 서버에 메뉴가 수정될 수 있도록 요청한다.
+// - [ ] 서버에 메뉴의 품절상태가 토글될 수 있도록 요청한다.
+// - [ ] 서버에 메뉴가 섹체할 수 있도록 요청한다.
+
+// TODO 리펙터링 부분
+// - [ ] localStorage에 저장하는 로직은 지운다.
+// - [ ] fetch 비동기 api를 사용하는 부분을 async await을 사용하여 구현한다.
+
+// TODO 사용자 경험
+// - [ ] API 통신이 실패하는 경우에 대해 사용자가 알 수 있게 [alert]으로 예외처리를 진행한다.
+// - [ ] 중복되는 메뉴는 추가할 수 없다.
+
+const BASE_URL = 'http://localhost:3000/api';
 
 function App() {
   //상태는 변하는 데이터, 이 앱에서 변하는 것이 무엇인가? - 메뉴명
@@ -95,7 +83,18 @@ function App() {
       return;
     }
     const MenuName = $("#menu-name").value;
-    this.menu[this.currentCategory].push({ name: MenuName });
+    fetch(`${BASE_URL}/category/${this.currentCategory}/menu`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name: MenuName }),
+    }).then(response => {
+      return response.json();
+    }).then(data => {
+      console.log(data);
+    });
+    // this.menu[this.currentCategory].push({ name: MenuName });
     store.setLocalStorage(this.menu);
     render();
     $("#menu-name").value = "";
